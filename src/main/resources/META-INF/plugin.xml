@@ -1,0 +1,73 @@
+<idea-plugin>
+    <id>com.ye.ai-assistant</id>
+    <name>AI Assistant</name>
+    <vendor>ye</vendor>
+
+    <description><![CDATA[
+    <p>自用的 IDEA AI 助手：</p>
+    <ul>
+        <li><b>Agent 模式</b>：可读文件、搜代码、生成改动（改动先以 Diff 预览，确认后应用）。</li>
+        <li><b>问答模式</b>：只回答问题，不碰代码。</li>
+        <li><b>报错修复</b>：读取编辑器里的真实编译/检查错误，交给 AI 生成最小补丁，Diff 里红绿对比后一键应用。</li>
+        <li><b>最小修改模式</b>：开关打开后，AI 只能改报错行附近的少量代码，超范围会被拒绝并重试。</li>
+        <li><b>Q&amp;A 抽取</b>：从 AI 回复中抽出待决策问题，方向键选择答案后汇总。</li>
+    </ul>
+    <p>兼容任意 OpenAI 协议的服务（DeepSeek 等），在 Settings &gt; Tools &gt; AI Assistant 里配置。</p>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow
+            id="AI Assistant"
+            anchor="right"
+            secondary="true"
+            canCloseContents="true"
+            icon="/icons/ai.svg"
+            factoryClass="com.ye.aiassistant.ui.AiToolWindowFactory"/>
+
+        <applicationConfigurable
+            id="com.ye.aiassistant.settings"
+            displayName="AI Assistant"
+            parentId="tools"
+            instance="com.ye.aiassistant.settings.AiConfigurable"/>
+
+        <notificationGroup id="AI Assistant" displayType="BALLOON" isLogByDefault="true"/>
+
+        <postStartupActivity implementation="com.ye.aiassistant.AutoTestStartup"/>
+    </extensions>
+
+    <actions>
+        <action id="AiAssistant.FixErrors"
+                class="com.ye.aiassistant.actions.FixErrorsAction"
+                text="AI 修复报错…"
+                description="用 AI 修复当前文件的编译/检查报错，Diff 预览后应用">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="alt shift E"/>
+        </action>
+
+        <action id="AiAssistant.Qna"
+                class="com.ye.aiassistant.actions.QnaAction"
+                text="AI 问答抽取（Q&amp;A）"
+                description="从最后一条 AI 回复中抽取问题，方向键选择答案">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="alt shift Q"/>
+        </action>
+
+        <action id="AiAssistant.OpenChat"
+                class="com.ye.aiassistant.actions.OpenChatAction"
+                text="打开 AI 助手"
+                description="打开 AI 助手面板并聚焦输入框">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="alt shift A"/>
+        </action>
+
+        <action id="AiAssistant.TestConnection"
+                class="com.ye.aiassistant.actions.TestConnectionAction"
+                text="测试 AI 连接"
+                description="用当前配置发一个最小请求">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>
